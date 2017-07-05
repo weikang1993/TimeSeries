@@ -16,7 +16,7 @@ public class GenerateData{
 
 
 
-//ºËĞÄÉú³É´úÂë
+//æ ¸å¿ƒç”Ÿæˆä»£ç 
 class DataCore{
 	public static void GetData(int type,int trainNum,int testNum,int width) throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 	 String dataGenerateType="DataGenerate"+Integer.toString(type);
@@ -44,7 +44,7 @@ class DataCore{
 	}
 	
 }
-//¹éÒ»»¯Êı¾İµÄTool
+//å½’ä¸€åŒ–æ•°æ®çš„Tool
 class regTool{
   public static ArrayList<ArrayList<Double>> reg(ArrayList<ArrayList<Double>> ele){
 	  ArrayList<ArrayList<Double>> regList=new ArrayList<ArrayList<Double>>();
@@ -68,7 +68,7 @@ class regTool{
 }
 
 
-//Ğ´ÎÄ¼ş
+//å†™æ–‡ä»¶
 class saveTool{
 	public static void saveFile(ArrayList<ArrayList<Double>> ele,String filename) throws IOException{
 		FileWriter fw=new FileWriter(filename);
@@ -77,10 +77,10 @@ class saveTool{
 	    DecimalFormat df=new DecimalFormat("#.##");
 		
 	    for(int i=0;i<ele.size();i++){
-	    //Ğ´Àà±ê²Ù×÷
+	    //å†™ç±»æ ‡æ“ä½œ
 	    	//System.out.println(ele.get(i).get(0));
 	    	pw.print((ele.get(i).get(0)).intValue());
-	    //Ğ´Öµ²Ù×÷
+	    //å†™å€¼æ“ä½œ
 	    	for(int j=1;j<ele.get(i).size();j++){
 	    		pw.print(",");
 	    		pw.print(df.format(ele.get(i).get(j)));
@@ -113,10 +113,10 @@ class DataGenerate{
 }
 
 
-//°´ÕÕ¹æÔòÒ»½øĞĞÊı¾İÉú³É,Éú³ÉÈıÀàÖÜÆÚĞÔµÄ²¨ĞÎ
-//·Ö±ğÊÇÕıÏÒ²¨£¬¾â³İ²¨£¬·½²¨
+//æŒ‰ç…§è§„åˆ™ä¸€è¿›è¡Œæ•°æ®ç”Ÿæˆ,ç”Ÿæˆä¸‰ç±»å‘¨æœŸæ€§çš„æ³¢å½¢
+//åˆ†åˆ«æ˜¯æ­£å¼¦æ³¢ï¼Œé”¯é½¿æ³¢ï¼Œæ–¹æ³¢
 class DataGenerate1 extends DataGenerate{
-	//Óë¸ÃÖÖÊı¾İÀàĞÍÏà¹ØµÄ²¨ĞÎ
+	//ä¸è¯¥ç§æ•°æ®ç±»å‹ç›¸å…³çš„æ³¢å½¢
 	public int zhouqi;
 	public int zhengfu;
     
@@ -127,14 +127,14 @@ class DataGenerate1 extends DataGenerate{
     }
     
 
-    //Éú³ÉÊı¾İ¸²¸ÇÒ»¸öÖÜÆÚ
+    //ç”Ÿæˆæ•°æ®è¦†ç›–ä¸€ä¸ªå‘¨æœŸ
     public ArrayList<ArrayList<Double>> getTrainData(){
         for(int i=0;i<trainNum;i++){
-        	//Éú³ÉµÄÀàĞÍ
+        	//ç”Ÿæˆçš„ç±»å‹
         	int randType=(int)(Math.random()*10)%3;
         	int randStart=(int)(Math.random()*100)+1;  //
 			
-        	//Éú³ÉÊı¾İ
+        	//ç”Ÿæˆæ•°æ®
             ArrayList<Double> tempList=new ArrayList<Double>();
             tempList.add((double)randType);
             
@@ -149,47 +149,42 @@ class DataGenerate1 extends DataGenerate{
     }
     
     
-    //Éú³ÉÊı¾İ¸²¸ÇÒ»¸öÖÜÆÚ
+    //ç”Ÿæˆæ•°æ®è¦†ç›–ä¸€ä¸ªå‘¨æœŸ
     public ArrayList<ArrayList<Double>> getTestData(){
     	for(int i=0;i<testNum;i++){
     		int randType=(int)(Math.random()*10)%3;
-			int randStart=(int)(Math.random()*100)+1;
-			int randChange=(int)(Math.random()*10)%3;  
-			
-			System.out.println(randChange);
+		int randStart=(int)(Math.random()*100)+1;
+		int randChange=(int)(Math.random()*10)%3;  
     		ArrayList<Double> tempList=new ArrayList<Double>();
-    		tempList.add((double)randType);
-    		
-    		//System.out.println(randType);
+    		tempList.add((double)randType);    		
     		for(int j=randStart;j<randStart+width;j++){
     			double val=getValue(randType,j,zhouqi,zhengfu);
 				val=randomLineChange(randChange,val);
 				tempList.add(val);
     		}
 			
-			testData.add(tempList);
-    	}
-    	System.out.println(testData.size());
+		testData.add(tempList);
+    	}    	
     	return testData;
     }
     
     
-    //¼ÆËãĞòÁĞÖĞµÚi¸öÖµ
+    //è®¡ç®—åºåˆ—ä¸­ç¬¬iä¸ªå€¼
     public double getValue(int type,int i,int zhouqi,int zhengfu){
       double res=0;
       
       switch(type){
       case 0:
-    	  //¾ØĞÎ²¨
+    	  //çŸ©å½¢æ³¢
     	  if(i%zhouqi>=zhouqi/2) res=0;
     	  else res=zhengfu;
     	  break;
       case 1:
-    	  //ÕıÏÒ²¨
+    	  //æ­£å¼¦æ³¢
     	  res=zhengfu*Math.sin(zhouqi*i);
     	  break;
       case 2:
-    	  //¾â³İ²¨
+    	  //é”¯é½¿æ³¢
     	  res=i%zhouqi;
     	  break;
       default:
@@ -199,7 +194,7 @@ class DataGenerate1 extends DataGenerate{
     } 
     
     
-    //×öËæ»ú±ä»»
+    //åšéšæœºå˜æ¢
     public double randomLineChange(int type,double value){
     	double res=0;
     	int beishu=((int)Math.random()*10%5+1);
@@ -222,10 +217,10 @@ class DataGenerate1 extends DataGenerate{
 
 
 
-//°´ÕÕ¹æÔò¶ş½øĞĞÊı¾İÉú³É
+//æŒ‰ç…§è§„åˆ™äºŒè¿›è¡Œæ•°æ®ç”Ÿæˆ
 class DataGenerate2 extends DataGenerate{
 	
-	//Äã¿ÉÒÔÊµÏÖ×Ô¼ºµÄ·½·¨
+	//ä½ å¯ä»¥å®ç°è‡ªå·±çš„æ–¹æ³•
 	public DataGenerate2(int trainNum,int testNum,int width){
 		super(trainNum,testNum,width);
 	}
