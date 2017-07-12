@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 public class GenerateData{
   public static void main(String args[]) throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-	 DataCore.GetData(1, 50, 50, 200);
-     
+	  DataCore.GetData(1,50,50,200);
+	  DataCore.GetData(2,50,50,200);
+	  DataCore.GetData(3,50,50,200);
   }
   
 }
-
 
 
 //核心生成代码
@@ -78,7 +78,6 @@ class saveTool{
 		
 	    for(int i=0;i<ele.size();i++){
 	    //写类标操作
-	    	//System.out.println(ele.get(i).get(0));
 	    	pw.print((ele.get(i).get(0)).intValue());
 	    //写值操作
 	    	for(int j=1;j<ele.get(i).size();j++){
@@ -94,7 +93,7 @@ class saveTool{
 
 
 
-
+//数据生成的父类，其他
 class DataGenerate{
 	ArrayList<ArrayList<Double>> trainData=new ArrayList<ArrayList<Double>>();
 	ArrayList<ArrayList<Double>> testData=new ArrayList<ArrayList<Double>>();
@@ -116,7 +115,7 @@ class DataGenerate{
 //按照规则一进行数据生成,生成三类周期性的波形
 //分别是正弦波，锯齿波，方波
 class DataGenerate1 extends DataGenerate{
-	//与该种数据类型相关的波形
+	//与该种数据类型相关的参数
 	public int zhouqi;
 	public int zhengfu;
     
@@ -132,7 +131,7 @@ class DataGenerate1 extends DataGenerate{
         for(int i=0;i<trainNum;i++){
         	//生成的类型
         	int randType=(int)(Math.random()*10)%3;
-        	int randStart=(int)(Math.random()*100)+1;  //
+        	int randStart=(int)(Math.random()*100)+1;  
 			
         	//生成数据
             ArrayList<Double> tempList=new ArrayList<Double>();
@@ -153,18 +152,21 @@ class DataGenerate1 extends DataGenerate{
     public ArrayList<ArrayList<Double>> getTestData(){
     	for(int i=0;i<testNum;i++){
     		int randType=(int)(Math.random()*10)%3;
-		int randStart=(int)(Math.random()*100)+1;
-		int randChange=(int)(Math.random()*10)%3;  
+			int randStart=(int)(Math.random()*100)+1;
+			int randChange=(int)(Math.random()*10)%3;  
+			
     		ArrayList<Double> tempList=new ArrayList<Double>();
-    		tempList.add((double)randType);    		
+    		tempList.add((double)randType);
+    		
     		for(int j=randStart;j<randStart+width;j++){
     			double val=getValue(randType,j,zhouqi,zhengfu);
 				val=randomLineChange(randChange,val);
 				tempList.add(val);
     		}
 			
-		testData.add(tempList);
-    	}    	
+			testData.add(tempList);
+    	}
+    	System.out.println(testData.size());
     	return testData;
     }
     
@@ -216,21 +218,171 @@ class DataGenerate1 extends DataGenerate{
 }
 
 
-
-//按照规则二进行数据生成
+//生成一系列的折线
+//折线分为5段，每段斜率在-10在10之间随机
+//斜率根据大小分为-1到-5，-6到-10，1到5,6到10四种类型
+//折线的每一段斜率类型都相同时认为这一段折线为一类
 class DataGenerate2 extends DataGenerate{
-	
-	//你可以实现自己的方法
+    public int duanshu;
+    ArrayList<ArrayList<Integer>> kList=new ArrayList<ArrayList<Integer>>(); //斜率
 	public DataGenerate2(int trainNum,int testNum,int width){
 		super(trainNum,testNum,width);
+		duanshu=5;  //折线的段数为5
+		
+		//随机生成4组4*5的斜率
+		for(int i=0;i<4;i++){
+			ArrayList<Integer> tempList=new ArrayList<Integer>();
+			for(int j=0;j<duanshu;j++){
+			int randK=(int)(Math.random()*10)%4;
+			tempList.add(randK);
+			}
+			kList.add(tempList);
+		}
 	}
 	
 	public ArrayList<ArrayList<Double>> getTrainData(){
+		//按照要求生成
+		for(int i=0;i<trainNum;i++){
+		    //从KList取数据	
+			int randType=(int)(Math.random()*10)%4;
+			ArrayList<Double> tempList=new ArrayList<Double>();
+			tempList.add((double)randType);
+			int startPoint=(int)(Math.random()*10);
+			int k=0;
+			double lastVal=startPoint;
+			for(int m=startPoint;m<startPoint+width;m++){
+				int duanId=(m-startPoint)/(width/duanshu);
+				if((m-startPoint)%(width/duanshu)==0)k=getK(kList.get(randType).get(duanId));
+				double val=lastVal+k;
+				lastVal=val;
+				tempList.add(val);
+			}
+			
+			trainData.add(tempList);
+		}
 		return trainData;
 	}
 	
 	
-	public ArrayList<ArrayList<Double>> geteTestData(){
+	public ArrayList<ArrayList<Double>> getTestData(){
+		for(int i=0;i<testNum;i++){
+			int randType=(int)(Math.random()*10)%4;
+			ArrayList<Double> tempList=new ArrayList<Double>();
+			tempList.add((double)randType);
+			int startPoint=(int)(Math.random()*10);
+			
+			int k=0;
+			double lastVal=startPoint;
+			
+			for(int m=startPoint;m<startPoint+width;m++){
+				int duanId=(m-startPoint)/(width/duanshu);
+				//System.out.println(kList.get(randType).get(duanId));
+				if((m-startPoint)%(width/duanshu)==0) k=getK(kList.get(randType).get(duanId));
+				double val=lastVal+k;
+				lastVal=val;
+				tempList.add(val);
+			}
+			testData.add(tempList);
+		}
 		return testData;
 	}
+	
+	public int getK(int type){
+		int k=0;
+		switch(type){
+		case 0:
+		 k=-((int)(Math.random()*10)%5+1);
+		 break;
+		case 1:
+		 k=-((int)(Math.random()*10)%5+6);
+		 break;
+		case 2:
+		 k=(int)(Math.random()*10%5)+1;
+		 break;
+		case 3:
+		 k=(int)(Math.random()*10%5)+6;
+		 break;
+		default:
+		}
+	   return k;
+	}
+}
+
+
+//生成一系列折线
+//每条折线由5段组成
+//斜率分为4类：-1~1，-5~5，-10~10，-15~15组成
+//折线同样分为4类，0类：斜率变化在-1~1之间，1类：斜率变化在-5~5之间，2类：斜率变化在-10~10之间，3类：斜率变化在-15~15之间
+class DataGenerate3 extends DataGenerate{
+
+	public int duanshu;  
+	public DataGenerate3(int trainNum, int testNum, int width) {
+		super(trainNum, testNum, width);
+		this.duanshu=5;
+	}
+	
+	public ArrayList<ArrayList<Double>> getTrainData(){
+		for(int i=0;i<trainNum;i++){
+			int randType=(int)(Math.random()*10)%4;
+			ArrayList<Double> tempList=new ArrayList<Double>();
+			tempList.add((double)randType);
+			int startPoint=(int)(Math.random()*10);
+			int k=0;
+			double lastVal=startPoint;
+			
+			for(int m=startPoint;m<startPoint+width;m++){
+				if((m-startPoint)%(width/duanshu)==0) k=getK(randType);
+				double val=lastVal+k;
+				lastVal=val;
+				tempList.add(val);
+			}
+			trainData.add(tempList);
+		}
+			 return trainData;
+	}
+	
+	
+	public ArrayList<ArrayList<Double>> getTestData(){
+		for(int i=0;i<testNum;i++){
+			int randType=(int)(Math.random()*10)%4;
+			ArrayList<Double> tempList=new ArrayList<Double>();
+			tempList.add((double)randType);
+			int startPoint=(int)(Math.random()*10);
+			int k=0;
+			double lastVal=startPoint;
+			
+			for(int m=startPoint;m<startPoint+width;m++){
+				if((m-startPoint)%(width/duanshu)==0) k=getK(randType);
+				double val=lastVal+k;
+				lastVal=val;
+				tempList.add(val);
+			}
+			testData.add(tempList);
+		}
+	        return testData;	
+	}
+	
+	
+	public int getK(int type){
+		int k=0;
+		switch(type){
+		case 0:
+		 k=1;
+		 break;
+		case 1:
+		 k=(int)(Math.random()*10)%5+1;
+		 break;
+		case 2:
+		 k=(int)(Math.random()*10)%10+1;
+	     break;
+		case 3:
+		 k=(int)(Math.random()*100)%15+1;
+		 break;
+        default:
+		}
+		
+		if((int)(Math.random()*10)%2 ==0 ) return k;
+		else return -k;
+	}
+	
 }
